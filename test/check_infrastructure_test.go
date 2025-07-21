@@ -5,7 +5,6 @@ import (
 
     awsSdk "github.com/aws/aws-sdk-go/aws"
     "github.com/aws/aws-sdk-go/aws/session"
-    rds "github.com/aws/aws-sdk-go/service/rds"
     ec2 "github.com/aws/aws-sdk-go/service/ec2"
 
     "github.com/gruntwork-io/terratest/modules/terraform"

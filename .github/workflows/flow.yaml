@@ -45,14 +45,10 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }}
 
       - name: Terraform fmt
-        run: terraform fmt --chdir=${{ env.TARGET_DIR }}
+        run: terraform fmt 
 
       - name: Terraform plan
-        run: terraform plan -out=tfplan -chdir=${{ env.TARGET_DIR }}
-
-      - name: Terraform apply
-        if: github.ref == 'refs/heads/main'
-        run: terraform apply -chdir=${{ env.TARGET_DIR }} tfplan
+        run: terraform plan -out=tfplan
 
         
 

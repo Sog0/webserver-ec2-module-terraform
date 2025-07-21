@@ -48,10 +48,14 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }}
 
       - name: Terraform fmt
-        run: terraform fmt 
+        run: |
+          cd infrastructure 
+          terraform fmt 
 
       - name: Terraform plan
-        run: terraform plan -out=tfplan
+        run: |
+          cd infrastructure 
+          terraform plan -out=tfplan
 
         
 

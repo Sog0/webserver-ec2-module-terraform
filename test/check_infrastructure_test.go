@@ -14,48 +14,27 @@ import (
 func TestCheckInfrastructure(t *testing.T) {
     t.Parallel()
 
-    terraformOptions := &terraform.Options{
-        TerraformDir: "../infrastructure",
-    }
+    tf := &terraform.Options{TerraformDir: "../infrastructure"}
+    terraform.Init(t, tf)
 
-    terraform.Init(t, terraformOptions)
-
-    instanceIDs := terraform.OutputList(t, terraformOptions, "instance_ids")
-    assert.Greater(t, len(instanceIDs), 0, "EC2 instances must be created")
-
-    vpcID := terraform.Output(t, terraformOptions, "vpc_id")
+    assert.Greater(t, len(terraform.OutputList(t, tf, "instance_ids")), 0, "EC2 instances must be created")
+    assert.Greater(t, len(terraform.OutputList(t, tf, "db_instance_ids")), 0, "DB instances must be created")
 
     sess := session.Must(session.NewSession(&awsSdk.Config{Region: awsSdk.String("us-east-1")}))
     ec2Client := ec2.New(sess)
 
-    vpcOutput, err := ec2Client.DescribeVpcs(&ec2.DescribeVpcsInput{
-        VpcIds: []*string{awsSdk.String(vpcID)},
-    })
-    if err != nil {
-        t.Fatal(err)
+    vpcID := terraform.Output(t, tf, "vpc_id")
+    vpcOut, err := ec2Client.DescribeVpcs(&ec2.DescribeVpcsInput{VpcIds: []*string{awsSdk.String(vpcID)}})
+    if err != nil || len(vpcOut.Vpcs) == 0 {
+        t.Fatal("VPC not found or describe failed")
     }
-    if len(vpcOutput.Vpcs) == 0 {
-        t.Fatal("VPC not found")
-    }
+    assert.Equal(t, "192.168.0.0/16", *vpcOut.Vpcs[0].CidrBlock)
 
-    assert.Equal(t, "192.168.0.0/16", *vpcOutput.Vpcs[0].CidrBlock)
-
-    dbInstanceIDs := terraform.OutputList(t, terraformOptions, "db_instance_ids")
-    assert.Greater(t, len(dbInstanceIDs), 0, "DB instances must be created")
-
-    for _, dbInstanceID := range dbInstanceIDs {
-        ec2InstanceOutput, err := ec2Client.DescribeInstances(&ec2.DescribeInstancesInput{
-            InstanceIds: []*string{awsSdk.String(dbInstanceID)},
-        })
-        if err != nil {
-            t.Fatal(err)
+    for _, id := range terraform.OutputList(t, tf, "db_instance_ids") {
+        res, err := ec2Client.DescribeInstances(&ec2.DescribeInstancesInput{InstanceIds: []*string{awsSdk.String(id)}})
+        if err != nil || len(res.Reservations[0].Instances) == 0 {
+            t.Fatalf("EC2 DB Instance %s not found or describe failed", id)
         }
-
-        instances := ec2InstanceOutput.Reservations[0].Instances
-        if len(instances) == 0 {
-            t.Fatalf("EC2 Instance %s not found", dbInstanceID)
-        }
-
-        assert.Nil(t, instances[0].PublicIpAddress, "Database EC2 instance must NOT have a public IP")
+        assert.Nil(t, res.Reservations[0].Instances[0].PublicIpAddress, "DB instance must NOT have public IP")
     }
 }

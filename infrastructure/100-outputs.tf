@@ -22,6 +22,6 @@ output "vpc_id" {
   value = aws_vpc.terraform.id
 }
 
-output "db_instance_id" {
+output "db_instance_ids" {
   value = values(aws_instance.db)[*].id
 }

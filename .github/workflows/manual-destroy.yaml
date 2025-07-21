@@ -26,12 +26,7 @@ jobs:
       - name: Terraform init
         run: |
           cd infrastructure 
-          terraform init 
-      
-      - name: Terraform plan
-        run: |
-          cd infrastructure 
-          terraform plan 
+          terraform init
 
       - name: Terraform destroy
         run: |

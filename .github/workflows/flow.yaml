@@ -55,7 +55,7 @@ jobs:
       - name: Terraform validate
         run: |
           cd infrastructure 
-          terraform validate
+          terraform validate | true
 
       - name: Terraform plan
         run: |

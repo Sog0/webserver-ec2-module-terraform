@@ -13,3 +13,15 @@ output "db_ip" {
     instance.id => instance.private_ip
   }
 }
+
+output "instance_ids" {
+  value = [aws_instance.http[*].id]
+}
+
+output "vpc_id" {
+  value = aws_vpc.terraform.id
+}
+
+output "db_instance_id" {
+  value = aws_instance.db.id
+}

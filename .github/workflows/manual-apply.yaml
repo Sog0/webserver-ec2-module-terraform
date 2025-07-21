@@ -32,3 +32,13 @@ jobs:
         run: |
           cd infrastructure
           terraform apply --auto-approve
+          
+      - name: Run Terratest checks
+        run: |
+          cd test
+          go mod tidy
+          go test -v ./...
+        env:
+          AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          AWS_DEFAULT_REGION: us-east-1     

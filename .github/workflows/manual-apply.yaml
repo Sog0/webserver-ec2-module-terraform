@@ -32,7 +32,10 @@ jobs:
         run: |
           cd infrastructure
           terraform apply --auto-approve
-          
+
+      - name: Setup Go
+        uses: actions/setup-go@v5
+
       - name: Run Terratest checks
         run: |
           cd test

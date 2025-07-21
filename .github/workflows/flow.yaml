@@ -27,7 +27,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
       - name: Terraform init
-        run: terraform init 
+        run: |
+          cd infrastructure 
+          terraform init 
 
       - name: Check with tfsec
         uses: aquasecurity/tfsec-action@v1.0.0

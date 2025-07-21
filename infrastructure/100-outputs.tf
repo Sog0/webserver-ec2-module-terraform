@@ -15,7 +15,7 @@ output "db_ip" {
 }
 
 output "instance_ids" {
-  value = [aws_instance.http[*].id]
+  value = aws_instance.http[*].id
 }
 
 output "vpc_id" {
@@ -23,5 +23,5 @@ output "vpc_id" {
 }
 
 output "db_instance_id" {
-  value = [aws_instance.db[*].id]
+  value = aws_instance.db[*].id
 }

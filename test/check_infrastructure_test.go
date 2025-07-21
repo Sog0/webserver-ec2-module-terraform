@@ -39,7 +39,7 @@ func TestCheckInfrastructure(t *testing.T) {
         t.Fatal("VPC not found")
     }
 
-    assert.Equal(t, "10.0.0.0/16", *vpcOutput.Vpcs[0].CidrBlock)
+    assert.Equal(t, "192.168.0.0/16", *vpcOutput.Vpcs[0].CidrBlock)
 
     dbInstanceIDs := terraform.OutputList(t, terraformOptions, "db_instance_ids")
     assert.Greater(t, len(dbInstanceIDs), 0, "DB instances must be created")

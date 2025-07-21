@@ -1,7 +1,8 @@
 name: Valdidate terraform infrastructure
 
 on:
-  workflow_dispatch:
+  push:
+  pull_request:
 
 env:
   TARGET_DIR: infrastructure

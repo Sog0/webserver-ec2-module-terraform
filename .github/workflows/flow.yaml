@@ -27,7 +27,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
       - name: Terraform init
-        run: terraform init --chdir=${{ env.TARGET_DIR }}
+        run: terraform --chdir=${{ env.TARGET_DIR }} init 
 
       - name: Check with tfsec
         uses: aquasecurity/tfsec-action@v1.0.0

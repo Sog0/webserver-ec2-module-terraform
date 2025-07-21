@@ -61,11 +61,3 @@ jobs:
         run: |
           cd infrastructure 
           terraform plan
-
-      - name: Terraform apply
-        run: |
-          cd infrastructure 
-          terraform apply
-        
-
-      

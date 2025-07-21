@@ -44,15 +44,19 @@ func TestCheckInfrastructure(t *testing.T) {
     dbInstanceIDs := terraform.OutputList(t, terraformOptions, "db_instance_ids")
     assert.Greater(t, len(dbInstanceIDs), 0, "DB instances must be created")
 
-    rdsClient := rds.New(sess)
-
     for _, dbInstanceID := range dbInstanceIDs {
-        dbInstancesOutput, err := rdsClient.DescribeDBInstances(&rds.DescribeDBInstancesInput{
-            DBInstanceIdentifier: awsSdk.String(dbInstanceID),
+        ec2InstanceOutput, err := ec2Client.DescribeInstances(&ec2.DescribeInstancesInput{
+            InstanceIds: []*string{awsSdk.String(dbInstanceID)},
         })
         if err != nil {
             t.Fatal(err)
         }
-        assert.False(t, *dbInstancesOutput.DBInstances[0].PubliclyAccessible, "Database must NOT be publicly accessible")
+
+        instances := ec2InstanceOutput.Reservations[0].Instances
+        if len(instances) == 0 {
+            t.Fatalf("EC2 Instance %s not found", dbInstanceID)
+        }
+
+        assert.Nil(t, instances[0].PublicIpAddress, "Database EC2 instance must NOT have a public IP")
     }
 }

@@ -1,4 +1,6 @@
-package (
+package test
+
+import (
     "testing"
 
     awsSdk "github.com/aws/aws-sdk-go/aws"

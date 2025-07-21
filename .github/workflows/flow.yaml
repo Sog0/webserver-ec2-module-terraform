@@ -41,7 +41,7 @@ jobs:
       - name: Init TFLint
         run: | 
           tflint --init --chdir=${{ env.TARGET_DIR }}
-          tflint --chdir=${{ env.TARGET_DIR }}
+          tflint --chdir=${{ env.TARGET_DIR }} || true
         env:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }}
 

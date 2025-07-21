@@ -1,4 +1,4 @@
-name: Test workflow for plan and apply
+name: Valdidate terraform infrastructure
 
 on:
   push:
@@ -51,12 +51,21 @@ jobs:
         run: |
           cd infrastructure 
           terraform fmt 
+      
+      - name: Terraform validate
+        run: |
+          cd infrastructure 
+          terraform validate
 
       - name: Terraform plan
         run: |
           cd infrastructure 
-          terraform plan -out=tfplan
+          terraform plan
 
+      - name: Terraform apply
+        run: |
+          cd infrastructure 
+          terraform apply
         
 
       

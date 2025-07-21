@@ -1,45 +1,56 @@
-package test
-
 import (
-	"testing"
+    "testing"
 
-	"github.com/aws/aws-sdk-go/service/rds"
-	"github.com/aws/aws-sdk-go/aws"
-	"github.com/gruntwork-io/terratest/modules/aws"
-	"github.com/gruntwork-io/terratest/modules/terraform"
-	"github.com/stretchr/testify/assert"
+    awsSdk "github.com/aws/aws-sdk-go/aws"
+    "github.com/aws/aws-sdk-go/aws/session"
+    rds "github.com/aws/aws-sdk-go/service/rds"
+    ec2 "github.com/aws/aws-sdk-go/service/ec2"
+
+    "github.com/gruntwork-io/terratest/modules/terraform"
+    "github.com/stretchr/testify/assert"
 )
 
 func TestCheckInfrastructure(t *testing.T) {
-	t.Parallel()
+    t.Parallel()
 
-	terraformOptions := &terraform.Options{
-		TerraformDir: "../infrastructure",
-	}
+    terraformOptions := &terraform.Options{
+        TerraformDir: "../infrastructure",
+    }
 
-	terraform.Init(t, terraformOptions)
+    terraform.Init(t, terraformOptions)
 
-	instanceIDs := terraform.OutputList(t, terraformOptions, "instance_ids")
-	assert.Greater(t, len(instanceIDs), 0, "EC2 instances must be created")
+    instanceIDs := terraform.OutputList(t, terraformOptions, "instance_ids")
+    assert.Greater(t, len(instanceIDs), 0, "EC2 instances must be created")
 
-	vpcID := terraform.Output(t, terraformOptions, "vpc_id")
-	vpc := aws.GetVpcById(t, vpcID, "us-east-1")
-	assert.Equal(t, "10.0.0.0/16", *vpc.CidrBlock) // исправлено
+    vpcID := terraform.Output(t, terraformOptions, "vpc_id")
 
-	dbInstanceIDs := terraform.OutputList(t, terraformOptions, "db_instance_ids")
-	assert.Greater(t, len(dbInstanceIDs), 0, "DB instances must be created")
+    sess := session.Must(session.NewSession(&awsSdk.Config{Region: awsSdk.String("us-east-1")}))
+    ec2Client := ec2.New(sess)
 
-	rdsClient := aws.NewRdsClient(t, "us-east-1")
+    vpcOutput, err := ec2Client.DescribeVpcs(&ec2.DescribeVpcsInput{
+        VpcIds: []*string{awsSdk.String(vpcID)},
+    })
+    if err != nil {
+        t.Fatal(err)
+    }
+    if len(vpcOutput.Vpcs) == 0 {
+        t.Fatal("VPC not found")
+    }
 
-	for _, dbInstanceID := range dbInstanceIDs {
-		dbInstancesOutput, err := rdsClient.DescribeDBInstances(&rds.DescribeDBInstancesInput{
-			DBInstanceIdentifier: aws.String(dbInstanceID),
-		})
+    assert.Equal(t, "10.0.0.0/16", *vpcOutput.Vpcs[0].CidrBlock)
 
-		if err != nil {
-			t.Fatal(err)
-		}
+    dbInstanceIDs := terraform.OutputList(t, terraformOptions, "db_instance_ids")
+    assert.Greater(t, len(dbInstanceIDs), 0, "DB instances must be created")
 
-		assert.False(t, *dbInstancesOutput.DBInstances[0].PubliclyAccessible, "Database must NOT be publicly accessible")
-	}
+    rdsClient := rds.New(sess)
+
+    for _, dbInstanceID := range dbInstanceIDs {
+        dbInstancesOutput, err := rdsClient.DescribeDBInstances(&rds.DescribeDBInstancesInput{
+            DBInstanceIdentifier: awsSdk.String(dbInstanceID),
+        })
+        if err != nil {
+            t.Fatal(err)
+        }
+        assert.False(t, *dbInstancesOutput.DBInstances[0].PubliclyAccessible, "Database must NOT be publicly accessible")
+    }
 }

@@ -7,6 +7,6 @@ terraform {
     bucket         = "my-tfstate-bucket"
     key            = "webserver/terraform.tfstate"
     region         = "us-east-1"
-    dynamodb_table = "terraform-locks"
+    use_lockfile = true
   }
 }

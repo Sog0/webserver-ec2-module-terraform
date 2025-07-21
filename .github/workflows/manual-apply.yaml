@@ -32,3 +32,8 @@ jobs:
         run: |
           cd infrastructure
           terraform apply --auto-approve
+
+      - name: Terraform destroy
+        run: |
+          cd infrastructure
+          terraform destroy --auto-approve

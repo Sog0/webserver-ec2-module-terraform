@@ -1,0 +1,17 @@
+releases:
+  - name: cert-manager
+    namespace: cert-manager
+    chart: jetstack/cert-manager
+    values:
+      - installCRDs: true
+
+  - name: runner 
+    namespace: actions
+    version: 0.23.7
+    createNamespace: false
+    chart: actions-runner-controller/actions-runner-controller
+    values:
+      - syncPeriod: 1m
+      - authSecret:
+          create: false
+          name: controller-manager

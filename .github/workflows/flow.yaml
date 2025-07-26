@@ -35,7 +35,7 @@ jobs:
           terraform init 
 
       - name: Check with tfsec
-        uses: aquasecurity/tfsec-action@v1.0.0
+        uses: aquasecurity/tfsec-action@v1.0.1
         with:
           working_directory: ${{ env.TARGET_DIR }}
           soft_fail: true

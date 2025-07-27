@@ -1,5 +1,4 @@
 .terraform*
-backend.tf
 terraform.tfstate*
 *.pem
 secret*

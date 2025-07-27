@@ -1,6 +1,14 @@
 name: Valdidate terraform infrastructure
 
 on:
+
+  workflow_dispatch:
+      inputs:
+        environment:
+          description: 'Environment to deploy (dev or prod)'
+          required: true
+          default: 'dev'
+
   push:
   pull_request:
 
@@ -38,6 +46,12 @@ jobs:
         run: |
           cd infrastructure 
           terraform init 
+
+      - name: Select workspace
+        run: |
+          cd ${{ env.TARGET_DIR }}
+          terraform workspace select ${{ github.event.inputs.environment || 'dev' }}
+
 
       - name: Check with tfsec
         uses: aquasecurity/tfsec-action@v1.0.1

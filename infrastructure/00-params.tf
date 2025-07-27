@@ -1,7 +1,7 @@
 # parms file for aws ec2 cloud
 
 locals {
-  environment = terraform.workspace != "dev" && terraform.workspace != "prod" ? "dev" : terraform.workspace
+  infra_env = terraform.workspace != "dev" && terraform.workspace != "prod" ? "dev" : terraform.workspace
 }
 
 #### VPC Network

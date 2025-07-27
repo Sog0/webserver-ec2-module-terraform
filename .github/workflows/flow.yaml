@@ -12,6 +12,7 @@ on:
           options:
             - dev
             - prod
+            - test
 
   push:
   pull_request:

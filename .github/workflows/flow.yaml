@@ -26,18 +26,15 @@ jobs:
   test:
     runs-on: self-hosted
     name: test infrastructure
-
+    environment: ${{ github.event.inputs.environment }}
     steps:
       - name: Checkout
-        environment: ${{ github.event.inputs.environment }}
         uses: actions/checkout@v4
       
       - name: Set up Terraform
-        environment: ${{ github.event.inputs.environment }}
         uses: hashicorp/setup-terraform@v3
       
       - name: Configure aws credentials
-        environment: ${{ github.event.inputs.environment }}
         uses: aws-actions/configure-aws-credentials@v4
         with:
           aws-region: us-east-1
@@ -45,37 +42,31 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
       
       - name: Download Node.js
-        environment: ${{ github.event.inputs.environment }}
         uses: actions/setup-node@v4
         with:
           node-version: '22'
 
       - name: Terraform init
-        environment: ${{ github.event.inputs.environment }}
         run: |
           cd infrastructure 
           terraform init 
 
       - name: Select workspace
-        environment: ${{ github.event.inputs.environment }}
         run: |
           cd ${{ env.TARGET_DIR }}
           terraform workspace select ${{ github.event.inputs.environment || 'dev' }} || terraform workspace new ${{ github.event.inputs.environment || 'dev' }}
 
 
       - name: Check with tfsec
-        environment: ${{ github.event.inputs.environment }}
         uses: aquasecurity/tfsec-action@v1.0.1
         with:
           working_directory: ${{ env.TARGET_DIR }}
           soft_fail: true
 
       - name: Setup TFLint
-        environment: ${{ github.event.inputs.environment }}
         uses: terraform-linters/setup-tflint@v4
 
       - name: Init TFLint
-        environment: ${{ github.event.inputs.environment }}
         run: | 
           tflint --init --chdir=${{ env.TARGET_DIR }}
           tflint --chdir=${{ env.TARGET_DIR }} || true
@@ -83,19 +74,16 @@ jobs:
           GITHUB_TOKEN: ${{ secrets.TOKEN_GIT }}
 
       - name: Terraform fmt
-        environment: ${{ github.event.inputs.environment }}
         run: |
           cd infrastructure 
           terraform fmt 
       
       - name: Terraform validate
-        environment: ${{ github.event.inputs.environment }}
         run: |
           cd infrastructure 
           terraform validate | true
 
       - name: Terraform plan
-        environment: ${{ github.event.inputs.environment }}
         run: |
           cd infrastructure 
           terraform plan

@@ -16,3 +16,6 @@ To add a new environment for your Terraform deployment, follow these steps:
 4. **Push Your Changes**  
    Commit and push the updated workflow file to your repository.  
    Then go to the **Actions** tab, select the workflow, click **"Run workflow"**, and choose the desired environment from the dropdown menu.
+[Dropdown menu](./img/dropdown.png)
+
+5. **RESULT**  

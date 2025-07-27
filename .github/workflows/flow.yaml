@@ -8,6 +8,10 @@ on:
           description: 'Environment to deploy (dev or prod)'
           required: true
           default: 'dev'
+          type: choice
+          options:
+            - dev
+            - prod
 
   push:
   pull_request:
